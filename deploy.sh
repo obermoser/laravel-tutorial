@@ -14,9 +14,9 @@ git pull --ff-only
 echo "==> Composer-Abhängigkeiten (ohne dev)"
 composer install --no-dev --optimize-autoloader
 
-echo "==> Frontend-Assets bauen"
-npm ci
-npm run build
+#echo "==> Frontend-Assets bauen"
+#npm ci
+#npm run build
 
 echo "==> Datenbank-Migrationen"
 php artisan migrate --force
