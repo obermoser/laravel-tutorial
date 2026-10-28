@@ -21,7 +21,7 @@ class PostController extends Controller
             return Category::get(['id', 'name'])->toArray();
         });
          
-        $posts = Post::orderBy('created_at', "DESC")->paginate(5);
+        $posts = Post::orderBy('created_at', "DESC")->simplePaginate(5);
         return view('dashboard', ['categories'=>$categories, 'posts'=>$posts]);
     }
 
