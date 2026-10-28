@@ -14,8 +14,11 @@ class PostController extends Controller
      */
     public function index()
     {
+        // Cache plain arrays, not Eloquent models: object serialization carries
+        // null bytes for protected properties, which some Redis setups mangle on
+        // read. Scalar arrays round-trip safely through any cache serializer.
         $categories = Cache::remember('categories.all', now()->addHours(24), function () {
-            return Category::get();
+            return Category::get(['id', 'name'])->toArray();
         });
         return view('dashboard', ['categories'=>$categories]);
     }
