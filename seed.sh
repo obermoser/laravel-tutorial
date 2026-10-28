@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 #
-# Schreibt 100 Posts (user_id = 1) direkt in die MySQL-Datenbank.
-# DB-Zugangsdaten werden aus der .env im Projektordner gelesen.
+# Seedet Categories + Posts direkt in die MySQL-Datenbank.
+#   - 6 Categories (ids 1-6, INSERT IGNORE)
+#   - 100 Posts (user_id = 1), category_id rotiert über die 6 Categories
+#
+# Kein artisan, kein Faker: liest nur die DB-Zugangsdaten aus der .env
+# und schickt ein einziges SQL-Skript an MySQL (Categories vor Posts,
+# damit der Fremdschlüssel greift). Beliebig oft wiederholbar (INSERT IGNORE).
 #
 # Auf dem Server im Laravel-Projektordner ausführen:
-#   bash seed-posts.sh            # schreibt in die DB
-#   bash seed-posts.sh --print    # zeigt nur das SQL, schreibt nichts
+#   bash seed.sh            # schreibt in die DB
+#   bash seed.sh --print    # zeigt nur das SQL, schreibt nichts
 #
 set -euo pipefail
 
@@ -34,7 +39,7 @@ sentences=( \
   "Small, deliberate improvements add up to meaningful results over time." \
   "We close with a short checklist you can keep nearby for reference." )
 
-# --- SQL zusammenbauen ---
+# --- SQL zusammenbauen (Categories zuerst, dann Posts) ---
 build_sql() {
   cat <<'SQL'
 INSERT IGNORE INTO categories (id, name, created_at, updated_at) VALUES
@@ -103,7 +108,7 @@ mysql_run() {
         --password="$DB_PASSWORD" "$DB_DATABASE" "$@"
 }
 
-# --- prüfen, dass der User existiert (Fremdschlüssel) ---
+# --- prüfen, dass der User existiert (Fremdschlüssel der Posts) ---
 exists="$(mysql_run -N -e "SELECT COUNT(*) FROM users WHERE id=$USER_ID;")"
 if [ "$exists" -eq 0 ]; then
   echo "Abbruch: Kein User mit id=$USER_ID vorhanden. Bitte zuerst registrieren." >&2
@@ -111,4 +116,4 @@ if [ "$exists" -eq 0 ]; then
 fi
 
 printf '%s\n' "$SQL_TEXT" | mysql_run
-echo "Fertig: $COUNT Posts (user_id=$USER_ID) geschrieben."
+echo "Fertig: 6 Categories + $COUNT Posts (user_id=$USER_ID) geschrieben."
