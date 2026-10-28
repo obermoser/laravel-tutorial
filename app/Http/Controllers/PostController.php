@@ -20,7 +20,9 @@ class PostController extends Controller
         $categories = Cache::remember('categories.all', now()->addHours(24), function () {
             return Category::get(['id', 'name'])->toArray();
         });
-        return view('dashboard', ['categories'=>$categories]);
+         
+        $posts = Post::orderBy('created_at', "DESC")->paginate(5);
+        return view('dashboard', ['categories'=>$categories, 'posts'=>$posts]);
     }
 
     /**
