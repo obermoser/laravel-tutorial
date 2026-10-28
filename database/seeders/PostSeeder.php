@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class PostSeeder extends Seeder
@@ -16,31 +17,23 @@ class PostSeeder extends Seeder
     private const COUNT = 100;
 
     /**
-     * Seed the posts table.
+     * Seed the posts table on its own.
      *
-     * Faker-free on purpose: this runs in production where dev dependencies
-     * (and the fake() helper) are not installed. Categories and users are read
-     * from the database at runtime, so the foreign keys always point at rows
-     * that actually exist in the target environment.
+     * Fully self-contained and faker-free: run it standalone with
+     *   php artisan db:seed --class=PostSeeder --force
+     * It ensures the categories and an author user exist first, so it works
+     * even on an empty database, without migrate:fresh or the DatabaseSeeder.
+     * Safe to re-run (everything uses firstOrCreate / updateOrCreate).
      */
     public function run(): void
     {
-        $categoryIds = Category::query()->pluck('id')->all();
-        $userIds = User::query()->pluck('id')->all();
-
-        if (empty($categoryIds) || empty($userIds)) {
-            $this->command->warn('PostSeeder skipped: seed categories and at least one user first.');
-
-            return;
-        }
+        $categoryIds = $this->ensureCategories();
+        $userIds = $this->ensureUsers();
 
         for ($i = 1; $i <= self::COUNT; $i++) {
             $title = $this->title($i);
             $slug = Str::slug($title).'-'.$i;
 
-            // updateOrCreate keyed by the unique slug makes the seeder safe to
-            // re-run: it updates the same rows instead of duplicating or hitting
-            // the unique constraint.
             Post::updateOrCreate(
                 ['slug' => $slug],
                 [
@@ -56,6 +49,40 @@ class PostSeeder extends Seeder
         }
 
         $this->command->info(self::COUNT.' posts seeded.');
+    }
+
+    /**
+     * Make sure the categories exist and return their ids.
+     *
+     * @return array<int, int>
+     */
+    private function ensureCategories(): array
+    {
+        $names = ['Technology', 'Health', 'Science', 'Sports', 'Politics', 'Entertainment'];
+
+        foreach ($names as $name) {
+            Category::firstOrCreate(['name' => $name]);
+        }
+
+        return Category::query()->pluck('id')->all();
+    }
+
+    /**
+     * Make sure at least one author user exists and return the user ids.
+     *
+     * @return array<int, int>
+     */
+    private function ensureUsers(): array
+    {
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'John Doe',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        return User::query()->pluck('id')->all();
     }
 
     /**
