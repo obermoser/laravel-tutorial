@@ -14,7 +14,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $categories = Cache::remember('categories',now()->addHours(24), function(){
+        $categories = Cache::remember('categories.all', now()->addHours(24), function () {
             return Category::get();
         });
         return view('dashboard', ['categories'=>$categories]);
