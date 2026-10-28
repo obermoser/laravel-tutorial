@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -13,7 +14,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        $categories = Category::get();
+        $categories = Cache::remember('categories',now()->addHours(24), function(){
+            return Category::get();
+        });
         return view('dashboard', ['categories'=>$categories]);
     }
 
