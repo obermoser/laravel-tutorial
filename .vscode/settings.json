@@ -1,0 +1,12 @@
+{
+    "editor.formatOnSave": true,
+    "intelephense.format.enable": false,
+    "laravel-pint.enable": true,
+    "[php]": { "editor.defaultFormatter": "open-southeners.laravel-pint" },
+    "[blade]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[css]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "prettier.documentSelectors": ["**/*.blade.php"],
+    "tailwindCSS.includeLanguages": { "blade": "html" }
+}

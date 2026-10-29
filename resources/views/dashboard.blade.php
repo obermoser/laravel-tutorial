@@ -26,7 +26,7 @@
 
             <div class="bg-white max-w-7xl dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mt-8">
                 <div class="p-4 space-y-4 text-gray-900 dark:text-gray-100">
-                    @foreach ($posts as $post)
+                    @forelse ($posts as $post)
                         <div
                             class="flex flex-col sm:flex-row overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
 
@@ -54,7 +54,9 @@
                                     alt="" />
                             </a>
                         </div>
-                    @endforeach
+                    @empty
+                        <p class="text-gray-900 dark:text-gray-100">No posts found.</p>
+                    @endforelse
 
                     {{ $posts->onEachSide(1)->links() }}
                 </div>
